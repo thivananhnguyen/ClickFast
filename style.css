@@ -1,28 +1,35 @@
-body {
-  font-family: sans-serif;
-  font-size: 1.5rem;
+* {
+  box-sizing: border-box;
 }
 
-h1 {
-  font-family: fantasy;
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(180deg, #fff6dd 0%, #ffe2b8 100%);
+  color: #1f2937;
+}
+
+#main {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
 }
 
 #container {
-  margin: 5rem;
+  width: min(560px, 100%);
+  padding: 2rem;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 2px solid #ffd08a;
+  box-shadow: 0 20px 45px rgba(120, 53, 15, 0.18);
 }
 
-#button-clicker {
-  background-color: aquamarine;
-  border: none;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-size: 1.5rem;
-  font-weight: bold;
-  transition: all 0.3s;
-  &:hover {
-    scale: 1.1;
-  }
+h1 {
+  margin: 0;
+  font-family: "Trebuchet MS", sans-serif;
+  font-size: clamp(2rem, 6vw, 3rem);
 }
 
 .flex-center {
@@ -33,20 +40,59 @@ h1 {
 }
 
 .catchphrase {
-  margin: 3rem 0;
+  margin: 1rem 0 1.25rem;
   text-align: center;
 }
 
+.timer-label {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
 .number {
-  margin: 3rem 0;
+  margin: 1.4rem auto;
   text-align: center;
-  background-color: blanchedalmond;
-  width: 10rem;
-  height: 10rem;
+  background-color: #fff0c2;
+  width: 9rem;
+  height: 9rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 25%;
+  border-radius: 28%;
   font-size: 3rem;
-  font-weight: bold;
+  font-weight: 800;
+  border: 2px solid #fdba74;
+}
+
+.actions {
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+#button-clicker,
+#button-reset {
+  border: none;
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+#button-clicker {
+  background-color: #22c55e;
+  color: #052e16;
+}
+
+#button-reset {
+  background-color: #f97316;
+  color: #ffffff;
+}
+
+#button-clicker:hover,
+#button-reset:hover {
+  transform: translateY(-2px) scale(1.03);
+  filter: brightness(1.05);
 }
