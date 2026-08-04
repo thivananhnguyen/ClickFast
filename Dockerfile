@@ -1,4 +1,4 @@
-FROM nginx:1.27-alpine
+FROM nginx:stable-alpine
 
 # Remove default nginx static files.
 RUN rm -rf /usr/share/nginx/html/*
