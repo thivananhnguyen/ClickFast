@@ -2,7 +2,6 @@
 
 [![Statut derniere execution - Tests](https://github.com/thivananhnguyen/ClickFast/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/thivananhnguyen/ClickFast/actions/workflows/node.js.yml)
 [![Node.js CI](https://github.com/thivananhnguyen/ClickFast/actions/workflows/node.js.yml/badge.svg)](https://github.com/thivananhnguyen/ClickFast/actions/workflows/node.js.yml)
-[![Docker Image CI](https://github.com/thivananhnguyen/ClickFast/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/thivananhnguyen/ClickFast/actions/workflows/docker-image.yml)
 
 Sois le plus rapide des clickers du game ⚡
 
