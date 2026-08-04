@@ -201,3 +201,39 @@ jobs:
             echo "- detected library components: ${component_count}"
           } >> "$GITHUB_STEP_SUMMARY"
 
+  security-summary:
+    needs: [security-deps, security-image, sbom-image]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aggregate security results
+        run: |
+          deps_result="${{ needs.security-deps.result }}"
+          image_result="${{ needs.security-image.result }}"
+          sbom_result="${{ needs.sbom-image.result }}"
+
+          verdict="PASS"
+          if [[ "$deps_result" == "failure" || "$image_result" == "failure" || "$sbom_result" == "failure" ]]; then
+            verdict="FAIL"
+          elif [[ "$deps_result" == "cancelled" || "$image_result" == "cancelled" || "$sbom_result" == "cancelled" ]]; then
+            verdict="INCOMPLETE"
+          fi
+
+          {
+            echo "## Security global summary"
+            echo ""
+            echo "| Scanner | Job | Result | Notes |"
+            echo "|---|---|---|---|"
+            echo "| Dependency scan | security-deps | ${deps_result} | npm audit (high+) + gitleaks |"
+            echo "| Container scan | security-image | ${image_result} | Trivy HIGH/CRITICAL on published image |"
+            echo "| Inventory (SBOM) | sbom-image | ${sbom_result} | Syft CycloneDX artifact |"
+            echo ""
+            echo "**Global verdict:** ${verdict}"
+            echo ""
+            echo "Reference image tag: \`${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\`"
+            echo ""
+            echo "Interpretation:"
+            echo "- \`skipped\` is expected on events that do not publish/scan images."
+            echo "- \`failure\` means the security gate blocked this run."
+          } >> "$GITHUB_STEP_SUMMARY"
+
