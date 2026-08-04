@@ -140,3 +140,31 @@ jobs:
             echo "- test command: ${{ needs.test.outputs.test_seconds }}s"
             echo "- note: image size can be read in Docker Hub for this exact SHA tag"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  security-image:
+    needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Scan published image with Trivy (HIGH/CRITICAL)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: table
+          exit-code: '1'
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+      - name: Security image summary
+        if: always()
+        run: |
+          {
+            echo "## Security image metrics"
+            echo "- scanned image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+            echo "- threshold: HIGH,CRITICAL"
+            echo "- scanner: Trivy"
+          } >> "$GITHUB_STEP_SUMMARY"
