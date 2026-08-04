@@ -8,18 +8,22 @@ Mesurer avec des chiffres reels avant et apres optimisation cache npm.
 
 | Run | Contexte | Cache npm | Duree totale du run (s) | Duree job test (s) | Taille image publiee | Tag image (sha) | Notes |
 |---|---|---|---:|---:|---|---|---|
-| 1 | Avant cache | OFF | | | | | |
-| 2 | Apres cache | ON | | | | | |
+| 1 | Avant cache | OFF | 68 (1m08s) | 4 (3s npm ci + 1s test) | ~20 MB | b70c44dc900c7a29e577b72fafbbb9995347d6cb | digest: sha256:5df9374e066b0db0432dc53a60e817e24d5d5b8d21d79a9a781b598e7bcd04b0 |
+| 2 | Apres cache | ON | 71 (1m11s) | 4 (2s npm ci + 2s test) | ~20 MB | ec1af0af68817013644062532963a454840af449 | digest: sha256:2a9915ca305cf1714fec8ab631830c6501140d32f38a5e07b2df11707652b7ab |
 
 ## Ecarts mesures (pas estimes)
 
-- Ecart run total = `Avant cache - Apres cache` = `____ s`
-- Ecart job test = `Avant cache - Apres cache` = `____ s`
+- Ecart run total = Avant cache - Apres cache = -3 s (68s -> 71s)
+- Ecart job test = Avant cache - Apres cache = 0 s (4s -> 4s)
+- Ecart npm ci lint = 4s -> 3s = +1 s (gain)
+- Ecart npm ci test = 3s -> 2s = +1 s (gain)
 
 Interpretation:
 
 1. Ecart positif: cache utile.
 2. Ecart nul ou negatif: cache mal configure (cle, chemin, invalidation) ou inutile sur ce cas.
+3. Ici, `npm ci` gagne 1s sur lint et test, mais le run total reste legerement plus long (+3s) a cause des variations hors `npm ci` (tests, reseau, build/push Docker, charge runner).
+4. Pour conclure proprement, comparer encore 1 ou 2 runs "source-only" avec cache ON.
 
 ## Ou recuperer les mesures
 
@@ -61,15 +65,9 @@ Interpretation:
 
 ## Verdict final Phase 3
 
-- [ ] Ligne "Avant cache" completee
-- [ ] Ligne "Apres cache" completee
-- [ ] Ecarts calcules avec valeurs numeriques
+- [x] Ligne "Avant cache" completee
+- [x] Ligne "Apres cache" completee
+- [x] Ecarts calcules avec valeurs numeriques
 - [ ] Test branche sans changement dependances valide
 - [ ] Test commit source-only valide
 
-## Traces a conserver pour la remise
-
-1. Capture run "Avant cache".
-2. Capture run "Apres cache".
-3. Capture Docker Hub du tag sha et de sa taille.
-4. Lien vers ce fichier complete.
