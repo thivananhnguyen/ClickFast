@@ -1,9 +1,54 @@
 # ClickFast ⏩
 
+[![Statut derniere execution - Tests](https://github.com/thivananhnguyen/ClickFast/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/thivananhnguyen/ClickFast/actions/workflows/node.js.yml)
 [![Node.js CI](https://github.com/thivananhnguyen/ClickFast/actions/workflows/node.js.yml/badge.svg)](https://github.com/thivananhnguyen/ClickFast/actions/workflows/node.js.yml)
 [![Docker Image CI](https://github.com/thivananhnguyen/ClickFast/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/thivananhnguyen/ClickFast/actions/workflows/docker-image.yml)
 
 Sois le plus rapide des clickers du game ⚡
+
+## Nom du projet
+
+ClickFast
+
+## Ce que fait le projet
+
+ClickFast est un mini-jeu web de rapidite: vous cliquez le plus vite possible pendant un chrono de 5 secondes.
+Le projet inclut aussi:
+
+- un leaderboard connecte a une API
+- des tests automatises avec Jest + jsdom
+- une integration CI/CD avec GitHub Actions
+- une execution conteneurisee avec Docker
+
+## Comment le lancer
+
+### 1. Lancer en local
+
+Option simple: ouvrir `index.html` dans un navigateur.
+
+Option recommandee (serveur local):
+
+```bash
+npx serve .
+```
+
+Puis ouvrir l'URL affichee (souvent http://localhost:3000).
+
+### 2. Lancer les tests
+
+```bash
+npm install
+npm test
+```
+
+### 3. Lancer avec Docker
+
+```bash
+docker build -t clickfast .
+docker run -d -p 8080:80 clickfast
+```
+
+Puis ouvrir http://localhost:8080
 
 ## Sommaire
 
