@@ -15,6 +15,7 @@ describe("api", () => {
 		const result = await api.fetchScores();
 		expect(result).toEqual(payload);
 		expect(global.fetch).toHaveBeenCalledTimes(1);
+		expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining(api.API_URL));
 	});
 
 	test("fetchScores throws mapped error when response is not ok", async () => {
@@ -36,7 +37,7 @@ describe("api", () => {
 			websiteUrl: "example.com",
 		});
 
-		expect(global.fetch).toHaveBeenNthCalledWith(1, api.API_URL);
+		expect(global.fetch).toHaveBeenNthCalledWith(1, expect.stringContaining(api.API_URL));
 		expect(global.fetch).toHaveBeenNthCalledWith(
 			2,
 			api.API_URL,

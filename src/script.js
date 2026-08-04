@@ -40,8 +40,7 @@ function initializeGame() {
 			const records = await modules.api.fetchScores();
 			return modules.normalizer
 				.dedupeScoresByUser(records)
-				.sort((a, b) => b.score - a.score)
-				.slice(0, 10);
+				.sort((a, b) => b.score - a.score);
 		},
 		onSubmit: async (formData) => {
 			const username = modules.normalizer.sanitizeUsername(formData.username);

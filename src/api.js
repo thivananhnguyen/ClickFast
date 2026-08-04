@@ -6,6 +6,7 @@
 	}
 })(typeof globalThis !== "undefined" ? globalThis : this, function (normalizer) {
 	const API_URL = "https://672e1217229a881691eed80f.mockapi.io/scores";
+	const PAGE_SIZE = 100;
 
 	async function mapHttpError(response, action) {
 		let details = "";
@@ -23,12 +24,29 @@
 	}
 
 	async function fetchScores() {
-		const response = await fetch(API_URL);
-		if (!response.ok) {
-			await mapHttpError(response, "Fetch scores");
+		const allRecords = [];
+		let page = 1;
+
+		while (true) {
+			const response = await fetch(`${API_URL}?page=${page}&limit=${PAGE_SIZE}`);
+			if (!response.ok) {
+				await mapHttpError(response, "Fetch scores");
+			}
+
+			const pageRecords = await response.json();
+			if (!Array.isArray(pageRecords) || pageRecords.length === 0) {
+				break;
+			}
+
+			allRecords.push(...pageRecords);
+			if (pageRecords.length < PAGE_SIZE) {
+				break;
+			}
+
+			page += 1;
 		}
 
-		return response.json();
+		return allRecords;
 	}
 
 	async function deleteUserRecords(username) {
