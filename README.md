@@ -3,7 +3,7 @@
 [![Statut derniere execution - Tests](https://github.com/thivananhnguyen/ClickFast/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/thivananhnguyen/ClickFast/actions/workflows/node.js.yml)
 [![Node.js CI](https://github.com/thivananhnguyen/ClickFast/actions/workflows/node.js.yml/badge.svg)](https://github.com/thivananhnguyen/ClickFast/actions/workflows/node.js.yml)
 
-Sois le plus rapide des clickers du game
+Sois le plus rapide des clickers du game @
 
 ## Nom du projet
 
