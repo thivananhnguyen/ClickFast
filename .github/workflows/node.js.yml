@@ -169,3 +169,35 @@ jobs:
             echo "- scanner: Trivy"
           } >> "$GITHUB_STEP_SUMMARY"
 
+  sbom-image:
+    needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Generate SBOM with Syft (CycloneDX JSON)
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: cyclonedx-json
+          output-file: sbom-cyclonedx-${{ github.sha }}.json
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-cyclonedx-${{ github.sha }}
+          path: sbom-cyclonedx-${{ github.sha }}.json
+      - name: SBOM summary
+        run: |
+          component_count=$(grep -c '"type":"library"' sbom-cyclonedx-${{ github.sha }}.json || true)
+          {
+            echo "## SBOM metrics"
+            echo "- image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+            echo "- format: CycloneDX JSON"
+            echo "- artifact: sbom-cyclonedx-${{ github.sha }}"
+            echo "- detected library components: ${component_count}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
