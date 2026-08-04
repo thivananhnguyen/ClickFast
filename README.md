@@ -49,6 +49,26 @@ docker run -d -p 8080:80 clickfast
 
 Puis ouvrir http://localhost:8080
 
+## Description pipeline - Phase 2
+
+La pipeline est definie dans `.github/workflows/node.js.yml` avec une logique fail-fast et une publication controlee:
+
+1. `lint` execute `npm ci` puis `npm run lint`.
+2. `test` depend de `lint` (`needs: lint`) et execute `npm ci` puis `npm test`.
+3. `build-and-push` depend de `test` et publie l'image Docker seulement sur un `push` vers `main` (jamais sur une pull request).
+
+Publication Docker Hub:
+
+- Authentification via `docker/login-action` avec `DOCKERHUB_USERNAME` et `DOCKERHUB_TOKEN` stockes dans les secrets GitHub.
+- Build et push en une etape via `docker/build-push-action`.
+- Tag immutable base sur le commit courant: `${{ github.sha }}`.
+
+Comportements attendus pour la validation Phase 2:
+
+1. Sur un push `main` avec lint/test verts, une nouvelle image est poussee sur Docker Hub avec un tag SHA unique.
+2. Sur une pull request vers `main`, seuls `lint` et `test` tournent; `build-and-push` ne publie rien.
+3. Si un secret Docker Hub est faux, seul `build-and-push` echoue; `lint` et `test` restent verts.
+
 ## Sommaire
 
 - [Comment utiliser le projet ?](#comment-utiliser-le-projet-)

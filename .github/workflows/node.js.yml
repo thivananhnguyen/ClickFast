@@ -12,35 +12,73 @@ env:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    outputs:
+      install_seconds: ${{ steps.npm_ci.outputs.duration_seconds }}
+      lint_seconds: ${{ steps.lint_cmd.outputs.duration_seconds }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
       - name: Install dependencies
-        run: npm ci
+        id: npm_ci
+        run: |
+          start=$(date +%s)
+          npm ci
+          end=$(date +%s)
+          echo "duration_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
       - name: Lint
-        run: npm run lint
+        id: lint_cmd
+        run: |
+          start=$(date +%s)
+          npm run lint
+          end=$(date +%s)
+          echo "duration_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+      - name: Lint job summary
+        run: |
+          {
+            echo "## Lint metrics"
+            echo "- npm ci duration: ${{ steps.npm_ci.outputs.duration_seconds }}s"
+            echo "- lint duration: ${{ steps.lint_cmd.outputs.duration_seconds }}s"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   test:
     needs: lint
     runs-on: ubuntu-latest
+    outputs:
+      install_seconds: ${{ steps.npm_ci.outputs.duration_seconds }}
+      test_seconds: ${{ steps.test_cmd.outputs.duration_seconds }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
       - name: Install dependencies
-        run: npm ci
+        id: npm_ci
+        run: |
+          start=$(date +%s)
+          npm ci
+          end=$(date +%s)
+          echo "duration_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
       - name: Test
-        run: npm test
+        id: test_cmd
+        run: |
+          start=$(date +%s)
+          npm test
+          end=$(date +%s)
+          echo "duration_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+      - name: Test job summary
+        run: |
+          {
+            echo "## Test metrics"
+            echo "- npm ci duration: ${{ steps.npm_ci.outputs.duration_seconds }}s"
+            echo "- test duration: ${{ steps.test_cmd.outputs.duration_seconds }}s"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   build-and-push:
-    needs: test
+    needs: [lint, test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -53,9 +91,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push image
+        id: docker_publish
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+      - name: Release summary
+        run: |
+          {
+            echo "## Release metrics"
+            echo "- image tag: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+            echo "- image digest: ${{ steps.docker_publish.outputs.digest }}"
+            echo "- lint npm ci: ${{ needs.lint.outputs.install_seconds }}s"
+            echo "- lint command: ${{ needs.lint.outputs.lint_seconds }}s"
+            echo "- test npm ci: ${{ needs.test.outputs.install_seconds }}s"
+            echo "- test command: ${{ needs.test.outputs.test_seconds }}s"
+            echo "- note: image size can be read in Docker Hub for this exact SHA tag"
+          } >> "$GITHUB_STEP_SUMMARY"
