@@ -2,7 +2,7 @@
   "name": "clickfast",
   "version": "1.0.0",
   "description": "Sois le plus rapide des clickers du game ⚡",
-  "main": "script.js",
+  "main": "src/script.js",
   "scripts": {
     "test": "jest --env=jsdom"
   },

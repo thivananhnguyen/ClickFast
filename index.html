@@ -20,8 +20,46 @@
           <button id="button-clicker" type="button">Click me!</button>
           <button id="button-reset" type="button">Reset</button>
         </div>
+
+        <section class="scoreboard-panel" aria-label="Scoreboard panel">
+          <h2>Share your score</h2>
+          <form id="score-form" class="score-form">
+            <label class="field">
+              <span>Username</span>
+              <input id="username-input" name="username" type="text" maxlength="30" placeholder="Player" required />
+            </label>
+
+            <label class="field">
+              <span>Avatar URL (optional)</span>
+              <input id="avatar-input" name="avatar" type="url" placeholder="https://..." />
+            </label>
+
+            <button id="submit-score" type="submit">Submit score</button>
+          </form>
+
+          <p id="submit-status" role="status" aria-live="polite"></p>
+
+          <h2>Leaderboard</h2>
+          <div class="leaderboard-wrap">
+            <table id="leaderboard" class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Player</th>
+                  <th>Score</th>
+                  <th>Website</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body"></tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </div>
-    <script src="script.js"></script>
+    <script src="src/game.js"></script>
+    <script src="src/scoreNormalizer.js"></script>
+    <script src="src/api.js"></script>
+    <script src="src/leaderboardView.js"></script>
+    <script src="src/script.js"></script>
   </body>
 </html>
