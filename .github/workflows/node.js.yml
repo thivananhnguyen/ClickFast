@@ -152,7 +152,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Scan published image with Trivy (HIGH/CRITICAL)
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           format: table
@@ -168,3 +168,4 @@ jobs:
             echo "- threshold: HIGH,CRITICAL"
             echo "- scanner: Trivy"
           } >> "$GITHUB_STEP_SUMMARY"
+
