@@ -9,7 +9,7 @@
 	const PAGE_SIZE = 100;
 
 	async function mapHttpError(response, action) {
-		let details = "";
+		let details;
 		try {
 			details = (await response.text()).trim();
 		} catch {

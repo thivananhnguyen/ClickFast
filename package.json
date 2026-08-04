@@ -4,12 +4,15 @@
   "description": "Sois le plus rapide des clickers du game ⚡",
   "main": "src/script.js",
   "scripts": {
+    "lint": "eslint src tests",
     "test": "jest --env=jsdom"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "eslint": "^9.33.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1"
   }
