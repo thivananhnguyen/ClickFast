@@ -1,0 +1,136 @@
+name: Verify CI
+
+'on':
+  pull_request:
+    branches: ["main"]
+
+env:
+  IMAGE_NAME: clickfast
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    outputs:
+      install_seconds: ${{ steps.npm_ci.outputs.duration_seconds }}
+      lint_seconds: ${{ steps.lint_cmd.outputs.duration_seconds }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        id: npm_ci
+        run: |
+          start=$(date +%s)
+          npm ci
+          end=$(date +%s)
+          echo "duration_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+      - name: Lint
+        id: lint_cmd
+        run: |
+          start=$(date +%s)
+          npm run lint
+          end=$(date +%s)
+          echo "duration_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+      - name: Lint job summary
+        run: |
+          {
+            echo "## Lint metrics"
+            echo "- npm ci duration: ${{ steps.npm_ci.outputs.duration_seconds }}s"
+            echo "- lint duration: ${{ steps.lint_cmd.outputs.duration_seconds }}s"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    outputs:
+      install_seconds: ${{ steps.npm_ci.outputs.duration_seconds }}
+      test_seconds: ${{ steps.test_cmd.outputs.duration_seconds }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        id: npm_ci
+        run: |
+          start=$(date +%s)
+          npm ci
+          end=$(date +%s)
+          echo "duration_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+      - name: Test
+        id: test_cmd
+        run: |
+          start=$(date +%s)
+          npm test
+          end=$(date +%s)
+          echo "duration_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+      - name: Test job summary
+        run: |
+          {
+            echo "## Test metrics"
+            echo "- npm ci duration: ${{ steps.npm_ci.outputs.duration_seconds }}s"
+            echo "- test duration: ${{ steps.test_cmd.outputs.duration_seconds }}s"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  security-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Dependency audit (high+)
+        run: npm audit --audit-level=high
+      - name: Secret scan with gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Security job summary
+        if: always()
+        run: |
+          {
+            echo "## Security metrics"
+            echo "- dependency audit threshold: high"
+            echo "- secret scan: gitleaks (full git history)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  security-summary:
+    needs: [security-deps]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aggregate verify security results
+        run: |
+          deps_result="${{ needs.security-deps.result }}"
+
+          verdict="PASS"
+          if [[ "$deps_result" == "failure" ]]; then
+            verdict="FAIL"
+          elif [[ "$deps_result" == "cancelled" ]]; then
+            verdict="INCOMPLETE"
+          fi
+
+          {
+            echo "## Security global summary"
+            echo ""
+            echo "| Scanner | Job | Result | Notes |"
+            echo "|---|---|---|---|"
+            echo "| Dependency scan | security-deps | ${deps_result} | npm audit (high+) + gitleaks |"
+            echo ""
+            echo "**Global verdict:** ${verdict}"
+            echo ""
+            echo "Interpretation:"
+            echo "- Verify workflow on PR does not publish images."
+            echo "- A failure means security gate blocked the PR checks."
+          } >> "$GITHUB_STEP_SUMMARY"
