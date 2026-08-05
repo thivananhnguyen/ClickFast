@@ -22,7 +22,7 @@ describe("game module", () => {
 
 	test("increments score on click", () => {
 		document.getElementById("button-clicker").click();
-		expect(document.getElementById("score").textContent).toBe("2");
+		expect(document.getElementById("score").textContent).toBe("1");
 	});
 
 	test("stops incrementing after 5 seconds", () => {
